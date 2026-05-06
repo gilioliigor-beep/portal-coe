@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COE Portal – Central de Chamados</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     LOGIN
+══════════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">
+      <img class="login-logo-img" src=".//Imagens/logo_bracell.png" alt="Bracell" />
+      <div class="login-logo-sub">Portal COE · Central de Chamados</div>
+    </div>
+    <div class="login-title">Bem-vindo de volta</div>
+    <div class="login-sub">Acesse o portal de chamados COE</div>
+    <div class="form-group">
+      <label class="form-label">E-mail</label>
+      <input class="form-input" type="email" value="usuario@bracell.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Senha</label>
+      <input class="form-input" type="password" value="••••••••" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Entrar como</label>
+      <div class="role-select">
+        <div class="role-btn selected" onclick="selectRole(this,'solicitante')">
+          <div class="role-icon">👤</div>
+          <div class="role-name">Solicitante</div>
+        </div>
+        <div class="role-btn" onclick="selectRole(this,'coe')">
+          <div class="role-icon">🎧</div>
+          <div class="role-name">Time COE</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Entrar no Portal →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div>
+        <div class="sidebar-logo-text">COE Portal</div>
+        <div class="sidebar-logo-sub">Central de Chamados</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="avatarInitial">JS</div>
+      <div>
+        <div class="user-name" id="sidebarUserName">João Silva</div>
+        <div class="user-role" id="sidebarUserRole">Solicitante</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Menu</div>
+      <div class="nav-item active" onclick="navTo('dashboard',this)" id="nav-dashboard">
+        <span class="nav-icon">📊</span> Visão Geral
+      </div>
+      <div class="nav-item" onclick="navTo('novo',this)" id="nav-novo">
+        <span class="nav-icon">➕</span> Novo Chamado
+      </div>
+      <div class="nav-item" onclick="navTo('meus',this)" id="nav-meus">
+        <span class="nav-icon">📋</span> Meus Chamados
+        <span class="nav-badge blue" id="badge-meus">0</span>
+      </div>
+      <div class="nav-item" onclick="navTo('dashboards',this)" id="nav-dashboards">
+        <span class="nav-icon">📈</span> Atendimentos
+      </div>
+      <div class="nav-item" onclick="navTo('fila',this)" id="nav-fila" style="display:none">
+        <span class="nav-icon">📥</span> Fila de Atendimento
+        <span class="nav-badge" id="badge-fila">0</span>
+      </div>
+      <div class="nav-item" onclick="navTo('notifs',this)" id="nav-notifs">
+        <span class="nav-icon">🔔</span> Notificações
+        <span class="nav-badge" id="badge-notifs">1</span>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="doLogout()">← Sair do Portal</button>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-sub"   id="topbarSub">Visão geral dos chamados</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline btn-sm"
+          onclick="navTo('notifs',document.getElementById('nav-notifs'))">
+          🔔 Notificações
+        </button>
+        <button class="btn btn-blue btn-sm" id="btnNovoTop"
+          onclick="navTo('novo',document.getElementById('nav-novo'))">
+          + Novo Chamado
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEWS -->
+    <div class="content">
+
+      <!-- VISÃO GERAL -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div id="dashCharts"></div>
+        <div class="section-title" style="margin-top:22px">Chamados Recentes</div>
+        <div class="table-card" id="dashTableCard">
+          <div class="table-header">
+            <span class="table-title" id="dashFilterLabel">Todos os chamados</span>
+            <div id="dashFilterClear">
+              <button class="btn btn-outline btn-sm" onclick="renderTable()">↻ Atualizar</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Protocolo</th><th>Título</th><th>Tipo</th><th>Sistema</th><th>Prioridade</th>
+                <th>Status</th><th>SLA</th><th>Responsável</th><th>Abertura</th>
+              </tr>
+            </thead>
+            <tbody id="dashTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- NOVO CHAMADO (wizard) -->
+      <div class="view" id="view-novo">
+        <div class="wizard-wrap">
+          <div class="wizard-steps" id="wizardSteps"></div>
+          <div id="wizardContent"></div>
+        </div>
+      </div>
+
+      <!-- MEUS CHAMADOS -->
+      <div class="view" id="view-meus">
+        <div class="table-card">
+          <div class="table-header">
+            <span class="table-title" id="meusTitle">Meus Chamados</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Protocolo</th><th>Título</th><th>Tipo</th><th>Sistema</th>
+                <th>Status</th><th>SLA</th><th>Abertura</th>
+              </tr>
+            </thead>
+            <tbody id="meusTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FILA DE ATENDIMENTO (COE) -->
+      <div class="view" id="view-fila">
+        <div class="table-card">
+          <div class="table-header">
+            <span class="table-title">Fila de Atendimento</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Protocolo</th><th>Título</th><th>Tipo</th><th>Sistema</th><th>Prioridade</th>
+                <th>Status</th><th>SLA</th><th>Solicitante</th><th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="filaTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DASHBOARDS / ATENDIMENTOS -->
+      <div class="view" id="view-dashboards">
+        <div id="dashboardsContent"></div>
+      </div>
+
+      <!-- NOTIFICAÇÕES -->
+      <div class="view" id="view-notifs">
+        <div class="card">
+          <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+            <span>🔔 Notificações</span>
+            <button id="btnLimparNotifs" class="btn btn-red btn-sm" onclick="limparNotifs()" style="display:none">
+              🗑️ Limpar tudo
+            </button>
+          </div>
+          <div id="notifsList"></div>
+        </div>
+      </div>
+
+      <!-- DETALHE DO CHAMADO -->
+      <div class="view" id="view-detail">
+        <div id="detailContent"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /screen-app -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
